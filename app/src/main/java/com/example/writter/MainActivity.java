@@ -7,9 +7,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,6 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private Button buttonShowList;
     private RecyclerView recyclerViewFlowers;
     private FlowerAdapter flowerAdapter;
+    private Button flowerbutton;
+    private Button starsrbutton;
+    private FrameLayout frameLayout;
+    private FlowerFragment FlowerFragment = new FlowerFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,18 +47,37 @@ public class MainActivity extends AppCompatActivity {
         dbHelper.copyDatabaseFromAssets();
 
         // Ініціалізація елементів
+        flowerbutton = (Button) findViewById (R.id.flowerbutton);
+        starsrbutton = (Button) findViewById (R.id.starsrbutton);
+        frameLayout = findViewById (R.id.frameLayout);
+
         editTextFlowerName = findViewById(R.id.editTextFlowerName);
         buttonSearch = findViewById(R.id.buttonSearch);
         textViewResult = findViewById(R.id.textViewResult);
         buttonShowList = findViewById(R.id.buttonShowList);
         recyclerViewFlowers = findViewById(R.id.recyclerViewFlowers);
-        
+
 
         // Ініціалізація RecyclerView та встановлення адаптера
         List<Flower> flowerList = getAllFlowers();
         flowerAdapter = new FlowerAdapter(flowerList);
         recyclerViewFlowers.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewFlowers.setAdapter(flowerAdapter);
+
+        flowerbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadFragment(new FlowerFragment());
+        }
+        });
+
+        starsrbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadFragment(new StarsFragment());
+            }
+        });
+
 
         // Логіка кнопки пошуку та обробник подій
         buttonSearch.setOnClickListener(new View.OnClickListener() {
@@ -64,6 +94,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button buttonExit = findViewById(R.id.buttonExit);
+        buttonExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Закриття поточної активності
+                finish();
+            }
+        });
+
         // Додано обробник для кнопки "Список квітів"
         buttonShowList.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,6 +111,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void loadFragment(Fragment fragment) {
+    FragmentManager fm = getSupportFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.frameLayout,fragment);
+        ft.commit();
+    }
+
 
     // Метод для додавання квітки до бази даних
     private void addFlower(String name, String description) {
